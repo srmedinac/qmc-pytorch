@@ -1,6 +1,6 @@
-# QMC-PyTorch
 
-Quantum Measurement Classification
+
+Quantum Measurement Classification Pytorch
 ============================================================
 
 [![Paper1](https://img.shields.io/badge/paper-arXiv%3A2004.01227-red)](https://arxiv.org/abs/2004.01227)
