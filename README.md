@@ -1,6 +1,4 @@
-
-
-Quantum Measurement Classification Pytorch
+Quantum Measurement Classification - PyTorch
 ============================================================
 
 [![Paper1](https://img.shields.io/badge/paper-arXiv%3A2004.01227-red)](https://arxiv.org/abs/2004.01227)
