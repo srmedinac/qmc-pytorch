@@ -4,7 +4,7 @@ Quantum Measurement Classification - PyTorch
 [![Paper1](https://img.shields.io/badge/paper-arXiv%3A2004.01227-red)](https://arxiv.org/abs/2004.01227)
 [![Paper2](https://img.shields.io/badge/paper-arXiv%3A2102.04394-red)](https://arxiv.org/abs/2102.04394)
 
-Work in progress port of https://github.com/fagonzalezo/qmc.git to PyTorch.
+Work in progress port of https://github.com/fagonzalezo/qmc to PyTorch.
 
 Implementation of some machine learning algorithms using density matrices from quantum mechanics. Particularly, the library provides support for
 
