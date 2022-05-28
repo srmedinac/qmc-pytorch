@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-import layers
+from pt import layers
 
 class QMClassifier(nn.Module):
     """

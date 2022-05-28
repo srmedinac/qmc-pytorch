@@ -62,12 +62,12 @@ class QFeatureMapOneHot(nn.Module):
         self.num_classes = num_classes
 
     def forward(self, inputs):
-        out = nn.Functional.one_hot(inputs, self.num_classes, dtype=torch.float)
-        b_size = torch.shape(out)[0]
+        out = nn.functional.one_hot(inputs, self.num_classes)
+        b_size = out.size(0)
         t_psi = out[:,0,:]
-        for i in range(1, out.shape[1]):
+        for i in range(1, out.size(1)):
             t_psi = torch.einsum('...i,...j->...ij', t_psi, out[:,i,:])
-            t_psi = torch.reshape(t_psi, (b_size - 1))
+            t_psi = torch.reshape(t_psi, (b_size, - 1))
         return t_psi
 
     def compute_output_shape(self, input_shape):
