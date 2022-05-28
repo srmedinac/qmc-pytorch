@@ -35,11 +35,11 @@ class QFeatureMapSmp(nn.Module):
         sums = torch.sum(sm, dim=-1)
         sm = sm / sums.unsqueeze(-1)
         amp = torch.sqrt(sm)
-        b_size = torch.shape(amp)[0]
+        b_size = amp.size(0)
         t_psi = amp[:,0,:]
-        for i in range(1, amp.shape[1]):
+        for i in range(1, amp.size(1)):
             t_psi = torch.einsum('...i,...j->...ij', t_psi, amp[:,i,:])
-            t_psi = torch.reshape(t_psi, (b_size - 1))
+            t_psi = torch.reshape(t_psi, (b_size, - 1))
         return t_psi
 
     def compute_output_shape(self, input_shape):
