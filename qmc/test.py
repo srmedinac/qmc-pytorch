@@ -47,29 +47,31 @@ class TestQFeatureMapOneHot(unittest.TestCase):
 
 class TestCrossProduct(unittest.TestCase):
     def test_cross_product(self):
-        self.out1 = torch.from_numpy(np.fromfile("test_tensors/cp_input1", dtype=np.float32))
-        self.out1 = self.out1.reshape(2,8)
-        self.out2 = torch.from_numpy(np.fromfile("test_tensors/cp_input2", dtype=np.float32))
-        self.out2 = self.out2.reshape(2,3,3)
-        self.expected = torch.from_numpy(np.fromfile("test_tensors/cp_expected", dtype=np.float32))
-        self.expected = self.expected.reshape(2,8,3,3)
+        self.out1 = torch.from_numpy(np.fromfile(
+            "test_tensors/cp_input1", dtype=np.float32))
+        self.out1 = self.out1.reshape(2, 8)
+        self.out2 = torch.from_numpy(np.fromfile(
+            "test_tensors/cp_input2", dtype=np.float32))
+        self.out2 = self.out2.reshape(2, 3, 3)
+        self.expected = torch.from_numpy(np.fromfile(
+            "test_tensors/cp_expected", dtype=np.float32))
+        self.expected = self.expected.reshape(2, 8, 3, 3)
         self.cp = layers.CrossProduct()
         self.output = self.cp([self.out1, self.out2])
-        self.assertTrue(torch.equal(self.output, self.expected), "FAILED: CrossProduct")
-"""
+        self.assertTrue(torch.equal(self.output, self.expected),
+                        "FAILED: CrossProduct")
+
+
 class TestQFeatureMapRFF(unittest.TestCase):
     def test_rff(self):
-        self.data_x = torch.tensor([[0., 0.],[0., 1,],[1., 0,],[1., 1,]])
-        self.data_y = torch.tensor([[0], [1], [1], [0]])
-        self.fm_x = layers.QFeatureMapRFF(
-            input_dim=2, dim=10, gamma=4, random_state=10)
-        self.assertEqual(self.fm_x(self.data_x).shape,
-                         (4, 4), "Wrong output shape")
-        self.assertTrue(torch.equal(self.fm_x(self.data_x), torch.tensor([[0, 0, 0, 0],
-                                               [0, 0, 0, 0],
-                                               [0, 0, 0, 0],
-                                               [0, 0, 0, 0]])),"FAILED: QFeatureMapRFF")
- """
+        self.input = torch.ones(2, 2)
+        print(self.input)
+        self.rff = layers.QFeatureMapRFF(
+            input_dim=2, dim=2)
+        self.output = self.rff(self.input)
+        print(self.output)
+        self.assertTrue(torch.equal(self.output, torch.tensor([[-0.4133601, 0.91056764],
+                                                               [-0.4133601, 0.91056764]])), "FAILED: QFeatureMapRFF")
 
 
 if __name__ == '__main__':

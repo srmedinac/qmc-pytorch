@@ -100,7 +100,17 @@ class QFeatureMapRFF(nn.Module):
         rbf_sampler = RBFSampler(n_components=self.dim, random_state=self.random_state, gamma=self.gamma)
         x = np.zeros(shape=(1,self.input_dim))
         rbf_sampler.fit(x)
-        self.rff_weights = None #continue here
+        self.rff_weights = torch.tensor(rbf_sampler.random_weights_)
+        self.offset = torch.tensor(rbf_sampler.random_offset_)
+        vals = torch.matmul(inputs.float(), self.rff_weights.float()) + self.offset.float()
+        vals = torch.cos(vals)
+        vals = vals * torch.sqrt(torch.tensor(2. / self.dim)) #fixme: this is a hack
+        norms = torch.norm(vals)
+        psi = vals / torch.unsqueeze(norms, 0)
+        return psi
+
+    def compute_output_shape(self, input_shape):
+        return (input_shape[0], self.dim)
 
 
 class CrossProduct(nn.Module):
