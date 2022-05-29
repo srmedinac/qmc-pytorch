@@ -103,12 +103,34 @@ class QFeatureMapRFF(nn.Module):
         self.rff_weights = None #continue here
 
 
+class CrossProduct(nn.Module):
+    """Cross product of two two inputs.
 
-# Test QFeatureMapSmp
-fm_x = QFeatureMapSmp(dim=4, beta=40)
-x_in_dim = 2
-x_out_dim = fm_x.compute_output_shape((1, x_in_dim))[1]
-assert x_out_dim == 16
+    Input shape:
+        A list of 2 tensors [t1, t2] with shapes
+        (batch_size, n) and (batch_size, m)
+    Output shape:
+        (batch_size, n, m)
+
+    """
+    def __init__(self, **kwargs):
+        super(CrossProduct, self).__init__(**kwargs)
+        self.idx1 = 'abcdefghij'
+        self.idx2 = 'klmnopqrst'
+
+        
+
+    def forward(self, inputs):
+        self.eins_eq = ('...' + self.idx1[:len(inputs[0]) - 1] + ',' +
+                        '...' + self.idx2[:len(inputs[1])] + '->' +
+                        '...' + self.idx1[:len(inputs[0]) - 1] +
+                        self.idx2[:len(inputs[1])])  
+        cp = torch.einsum(self.eins_eq,
+                       inputs[0], inputs[1])
+        return cp
+
+    def compute_output_shape(self, input_shape):
+        return (input_shape[0][1], input_shape[1][1])
 
 
     
