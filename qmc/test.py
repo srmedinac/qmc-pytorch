@@ -72,13 +72,21 @@ class TestQFeatureMapRFF(unittest.TestCase):
                                                                [-0.8068004, -0.59082407]])), "FAILED: QFeatureMapRFF")
 
 class TestQFeatureMapORF(unittest.TestCase):
-    def test_rff(self):
+    def test_orf(self):
         self.input = torch.ones(2, 2)
         self.rff = layers.QFeatureMapORF(
             input_dim=2, dim=2, random_state=6)
         self.output = self.rff(self.input)
         self.assertTrue(torch.equal(self.output, torch.tensor([[-0.86822516, -0.49617052],
                                                                [-0.86822516, -0.49617052]])), "FAILED: QFeatureMapORF")
+class TestQFeatureMapComplexRFF(unittest.TestCase):
+    def test_complex_rff(self):
+        self.input = torch.ones(2, 2)
+        self.rff = layers.QFeatureMapComplexRFF(
+            input_dim=2, dim=2, random_state=6)
+        self.output = self.rff(self.input)
+        self.assertTrue(torch.equal(self.output, torch.tensor([[0.7008729-0.09368658j, 0.6867487-0.16845244j],
+                                                               [0.7008729-0.09368658j, 0.6867487-0.16845244j]])), "FAILED: QFeatureMapComplexRFF")
 class TestQuantumDenseLayer(unittest.TestCase):
     def test_quantum_dense_layer(self):
         self.input = torch.ones(2, 2)
@@ -86,5 +94,13 @@ class TestQuantumDenseLayer(unittest.TestCase):
         self.output = self.qdl(self.input)
         self.assertTrue(self.output.size() == torch.Size([2,3]), "FAILED: QuantumDenseLayer") # find way to actually test the layer
 
+class TestVector2DensityMatrix(unittest.TestCase):
+    def test_vector2densitymatrix(self):
+        self.input = torch.ones(2, 2)
+        self.v2dm = layers.Vector2DensityMatrix()
+        self.output = self.v2dm(self.input)
+        print(self.output)
+        print(self.output.size())
+        self.assertTrue(self.output.size() == torch.Size([2,3,1]) and torch.equal(self.output, torch.tensor([[[1.],[1.],[1.]],[[1.],[1.],[1.]]])), "FAILED: Vector2DensityMatrix") # find way to actually test the layer
 if __name__ == '__main__':
     unittest.main()

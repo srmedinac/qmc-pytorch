@@ -73,7 +73,6 @@ class QFeatureMapOneHot(nn.Module):
     def compute_output_shape(self, input_shape):
         return (input_shape[0], self.num_classes ** input_shape[1])
 
-
 class QFeatureMapRFF(nn.Module):
     """Quantum feature map using random Fourier Features.
     Uses `RBFSampler` from sklearn to approximate an RBF kernel using
@@ -150,7 +149,6 @@ class QFeatureMapORF(nn.Module):
     def compute_output_shape(self, input_shape):
         return (input_shape[0], self.dim)
 
-
 class CrossProduct(nn.Module):
     """Cross product of two two inputs.
 
@@ -212,4 +210,59 @@ class QuantumDenseLayer(nn.Module):
             prob_out = torch.square(psy_out)
             return prob_out
         return psy_out
-    
+
+class QFeatureMapComplexRFF(nn.Module):
+    """Quantum feature map including the complex part of random Fourier Features.
+    Uses `RBFSampler` from sklearn to approximate an RBF kernel using
+    complex random Fourier features.
+
+    Input shape:
+        (batch_size, dim_in)
+    Output shape:
+        (batch_size, dim)
+    Arguments:
+        input_dim: dimension of the input
+        dim: int. Number of dimensions to represent a sample.
+        gamma: float. Gamma parameter of the RBF kernel to be approximated.
+        random_state: random number generator seed.
+    """
+    def __init__(self, input_dim: int, dim: int = 100, gamma: float = 1.0, random_state = None, **kwargs):
+        super().__init__()
+        self.input_dim = input_dim
+        self.dim = dim
+        self.gamma = gamma
+        self.random_state = random_state
+
+    def forward(self, inputs):
+        rbf_sampler = RBFSampler(n_components=self.dim, random_state=self.random_state, gamma=self.gamma)
+        x = np.zeros(shape=(1,self.input_dim))
+        rbf_sampler.fit(x)
+        self.rff_weights = torch.tensor(rbf_sampler.random_weights_)
+        self.offset = torch.tensor(rbf_sampler.random_offset_)
+        vals = torch.matmul(inputs.float(), self.rff_weights.float())
+        vals = torch.complex(torch.cos(vals), torch.sin(vals))
+        vals = vals * torch.sqrt(torch.tensor(1. / self.dim)).to(torch.complex64)
+        norms = torch.norm(vals, dim=1)
+        psi = vals / torch.unsqueeze(norms, 0)
+        return psi
+
+    def compute_output_shape(self, input_shape):
+        return (input_shape[0], self.dim)
+
+class Vector2DensityMatrix(nn.Module):
+    """
+    Represents a state vector as a factorized density matrix.
+
+    Input shape:
+        (batch_size, dim)
+    Output shape:
+        (batch_size, dim + 1, 1)
+    """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def forward(self, inputs):
+        ones = torch.full((inputs.size(0), 1), 1.0)
+        rho = torch.cat((ones, inputs), 1)
+        rho = torch.unsqueeze(rho, 0)
+        return rho
