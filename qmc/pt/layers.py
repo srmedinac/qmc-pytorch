@@ -105,7 +105,7 @@ class QFeatureMapRFF(nn.Module):
         vals = torch.matmul(inputs.float(), self.rff_weights.float()) + self.offset.float()
         vals = torch.cos(vals)
         vals = vals * torch.sqrt(torch.tensor(2. / self.dim)) #fixme: this is a hack
-        norms = torch.norm(vals)
+        norms = torch.norm(vals, dim=-1)
         psi = vals / torch.unsqueeze(norms, 0)
         return psi
 
@@ -142,5 +142,36 @@ class CrossProduct(nn.Module):
     def compute_output_shape(self, input_shape):
         return (input_shape[0][1], input_shape[1][1])
 
+class QuantumDenseLayer(nn.Module):
+    """Quantum dense layer for classification.
 
+    Input shape:
+        (batch_size, dim_in)
+        where dim_in is the dimension of the input state
+    Output shape:
+        (batch_size, dim_out)
+        where dim_out is the dimension of the output state
+    Arguments:
+        dim_in: int. the dimension of the input state
+        dim_out: int. the dimension of the output state
+        last_layer: bool. True if the layer is the last layer of a sequential model
+    """
+    def __init__(self, dim_in: int, dim_out: int, last_layer = True, **kwargs):
+        super().__init__(**kwargs)
+        self.dim_in = dim_in
+        self.dim_out = dim_out
+        self.last_layer = last_layer
+
+
+    def forward(self, inputs):
+        self.eig_vec = torch.nn.init.normal_(torch.empty(self.dim_out, self.dim_in))
+        norms = torch.unsqueeze(torch.norm(self.eig_vec, dim=1), 1)
+        eig_veg = self.eig_vec / norms
+        psy_out = torch.einsum('ij,...j->...i', eig_veg, inputs)
+        norms_psy_out = torch.unsqueeze(torch.norm(psy_out, dim=1), 1)
+        psy_out = psy_out / norms_psy_out
+        if self.last_layer:
+            prob_out = torch.square(psy_out)
+            return prob_out
+        return psy_out
     

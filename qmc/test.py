@@ -65,14 +65,19 @@ class TestCrossProduct(unittest.TestCase):
 class TestQFeatureMapRFF(unittest.TestCase):
     def test_rff(self):
         self.input = torch.ones(2, 2)
-        print(self.input)
         self.rff = layers.QFeatureMapRFF(
-            input_dim=2, dim=2)
+            input_dim=2, dim=2, random_state=6)
         self.output = self.rff(self.input)
         print(self.output)
-        self.assertTrue(torch.equal(self.output, torch.tensor([[-0.4133601, 0.91056764],
-                                                               [-0.4133601, 0.91056764]])), "FAILED: QFeatureMapRFF")
+        self.assertTrue(torch.equal(self.output, torch.tensor([[-0.8068004, -0.59082407],
+                                                               [-0.8068004, -0.59082407]])), "FAILED: QFeatureMapRFF")
 
+class TestQuantumDenseLayer(unittest.TestCase):
+    def test_quantum_dense_layer(self):
+        self.input = torch.ones(2, 2)
+        self.qdl = layers.QuantumDenseLayer(2, 3)
+        self.output = self.qdl(self.input)
+        self.assertTrue(self.output.size() == torch.Size([2,3]), "FAILED: QuantumDenseLayer")
 
 if __name__ == '__main__':
     unittest.main()
