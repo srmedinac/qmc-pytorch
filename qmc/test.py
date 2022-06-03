@@ -68,16 +68,23 @@ class TestQFeatureMapRFF(unittest.TestCase):
         self.rff = layers.QFeatureMapRFF(
             input_dim=2, dim=2, random_state=6)
         self.output = self.rff(self.input)
-        print(self.output)
         self.assertTrue(torch.equal(self.output, torch.tensor([[-0.8068004, -0.59082407],
                                                                [-0.8068004, -0.59082407]])), "FAILED: QFeatureMapRFF")
 
+class TestQFeatureMapORF(unittest.TestCase):
+    def test_rff(self):
+        self.input = torch.ones(2, 2)
+        self.rff = layers.QFeatureMapORF(
+            input_dim=2, dim=2, random_state=6)
+        self.output = self.rff(self.input)
+        self.assertTrue(torch.equal(self.output, torch.tensor([[-0.86822516, -0.49617052],
+                                                               [-0.86822516, -0.49617052]])), "FAILED: QFeatureMapORF")
 class TestQuantumDenseLayer(unittest.TestCase):
     def test_quantum_dense_layer(self):
         self.input = torch.ones(2, 2)
         self.qdl = layers.QuantumDenseLayer(2, 3)
         self.output = self.qdl(self.input)
-        self.assertTrue(self.output.size() == torch.Size([2,3]), "FAILED: QuantumDenseLayer")
+        self.assertTrue(self.output.size() == torch.Size([2,3]), "FAILED: QuantumDenseLayer") # find way to actually test the layer
 
 if __name__ == '__main__':
     unittest.main()

@@ -7,7 +7,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from sklearn.kernel_approximation import RBFSampler
-
+from . import _RBFSamplerORF
 
 class QFeatureMapSmp(nn.Module):
     """Quantum feature map using soft max probabilities.
@@ -106,6 +106,44 @@ class QFeatureMapRFF(nn.Module):
         vals = torch.cos(vals)
         vals = vals * torch.sqrt(torch.tensor(2. / self.dim)) #fixme: this is a hack
         norms = torch.norm(vals, dim=-1)
+        psi = vals / torch.unsqueeze(norms, 0)
+        return psi
+
+    def compute_output_shape(self, input_shape):
+        return (input_shape[0], self.dim)
+
+class QFeatureMapORF(nn.Module):
+    """Quantum feature map using Orthogonal Random Features.
+    Uses `ORFSampler` from sklearn to approximate an RBF kernel using
+    random Fourier features.
+
+    Input shape:
+        (batch_size, dim_in)
+    Output shape:
+        (batch_size, dim)
+    Arguments:
+        input_dim: dimension of the input
+        dim: int. Number of dimensions to represent a sample.
+        gamma: float. Gamma parameter of the RBF kernel to be approximated.
+        random_state: random number generator seed.
+    """
+    def __init__(self, input_dim: int, dim: int = 100, gamma: float = 1.0, random_state = None, **kwargs):
+        super().__init__()
+        self.input_dim = input_dim
+        self.dim = dim
+        self.gamma = gamma
+        self.random_state = random_state
+
+    def forward(self, inputs):
+        rbf_sampler = _RBFSamplerORF.RBFSamplerORF(n_components=self.dim, random_state=self.random_state, gamma=self.gamma)
+        x = np.zeros(shape=(1,self.input_dim))
+        rbf_sampler.fit(x)
+        self.rff_weights = torch.tensor(rbf_sampler.random_weights_)
+        self.offset = torch.tensor(rbf_sampler.random_offset_)
+        vals = torch.matmul(inputs.float(), self.rff_weights.float()) + self.offset.float()
+        vals = torch.cos(vals)
+        vals = vals * torch.sqrt(torch.tensor(2. / self.dim)) #fixme: this is a hack
+        norms = torch.norm(vals, dim=1)
         psi = vals / torch.unsqueeze(norms, 0)
         return psi
 
