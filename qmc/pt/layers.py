@@ -264,5 +264,39 @@ class Vector2DensityMatrix(nn.Module):
     def forward(self, inputs):
         ones = torch.full((inputs.size(0), 1), 1.0)
         rho = torch.cat((ones, inputs), 1)
-        rho = torch.unsqueeze(rho, 0)
+        rho = torch.unsqueeze(rho, -1)
         return rho
+
+class QMeasureClassif(nn.Module):
+    """Quantum measurement layer for classification.
+
+    Input shape:
+        (batch_size, dim_x)
+        where dim_x is the dimension of the input state
+    Output shape:
+        (batch_size, dim_y, dim_y)
+        where dim_y is the dimension of the output state
+    Arguments:
+        dim_x: int. the dimension of the input  state
+        dim_y: int. the dimension of the output state
+    """
+
+    def __init__(self, dim_x: int, dim_y: int = 2, **kwargs):
+        super().__init__(**kwargs)
+        self.dim_x = dim_x
+        self.dim_y = dim_y
+
+    def forward(self, inputs):
+        self.rho = torch.zeros((self.dim_x, self.dim_y, self.dim_x, self.dim_y))
+        oper = torch.einsum('...i,...j->...ij',
+            inputs, torch.conj(inputs))
+        rho_res = torch.einsum('...ik, klmn, ...mo -> ...ilon', oper, self.rho, oper)
+        trace_val = torch.einsum('...ijij->...', rho_res)
+        trace_val = torch.unsqueeze(trace_val, -1)
+        trace_val = torch.unsqueeze(trace_val, -1)
+        trace_val = torch.unsqueeze(trace_val, -1)
+        trace_val = torch.unsqueeze(trace_val, -1)
+        rho_res = rho_res / trace_val
+        rho_y = torch.einsum('...ijik->...jk', rho_res)
+        return rho_y
+
