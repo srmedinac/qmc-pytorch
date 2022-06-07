@@ -99,8 +99,21 @@ class TestVector2DensityMatrix(unittest.TestCase):
         self.input = torch.ones(2, 2)
         self.v2dm = layers.Vector2DensityMatrix()
         self.output = self.v2dm(self.input)
-        print(self.output)
-        print(self.output.size())
         self.assertTrue(self.output.size() == torch.Size([2,3,1]) and torch.equal(self.output, torch.tensor([[[1.],[1.],[1.]],[[1.],[1.],[1.]]])), "FAILED: Vector2DensityMatrix") # find way to actually test the layer
+
+class TestQMCEig(unittest.TestCase):
+    def test_qmceig(self):
+        self.input = torch.ones(2, 3)
+        qfm = layers.QFeatureMapSmp(dim=2, beta=10)
+        out1 = qfm(self.input)
+        self.qmceig = layers.QMeasureClassifEig(dim_x=8, dim_y=3, num_eig=0)
+        self.output = self.qmceig(out1)
+        print(self.output)
+        self.expected = torch.from_numpy(np.fromfile(
+            "test_tensors/QMCEigTensor", dtype=np.float32))
+        self.expected = self.expected.reshape(2, 3, 3)
+        self.assertTrue(torch.testing.assert_close(self.output,self.expected), "FAILED: QMCEig") # find way to actually test the layer
+
+
 if __name__ == '__main__':
     unittest.main()
