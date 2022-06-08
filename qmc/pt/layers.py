@@ -396,4 +396,22 @@ class QMeasureClassifEig(nn.Module):
         self.eig_val = e[-self.num_eig:]
         return e
 
+class DensityMatrix2Dist(nn.Module):
+    """Extracts a probability distribution from a density matrix.
 
+    Input shape:
+        A tensor with shape (batch_size, n, n)
+    Output shape:
+        (batch_size, n)
+    Arguments:
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def forward(self, inputs):
+        """
+        Arguments:
+            inputs: A tensor with shape (batch_size, n, n)
+        """
+        return torch.einsum('...ii->...i', inputs)
