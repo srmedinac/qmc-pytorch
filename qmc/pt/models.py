@@ -38,12 +38,9 @@ class QMClassifier(nn.Module):
         rho = torch.sum(rho, dim=0)
         if x.size(1) is not None:
             self.qm.weights[0] = rho
+        self.qm.weights[0] = self.qm.weights[0] / self.num_samples
         return rho
 
-    def fit(self, *args, **kwargs):
-        result = super(QMClassifier, self).fit(*args, **kwargs)
-        self.qm.weights[0] = self.qm.weights[0] / self.num_samples
-        return result
     
     def get_rho(self):
         return self.qm.rho

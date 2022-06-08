@@ -31,7 +31,7 @@ class QFeatureMapSmp(nn.Module):
     def forward(self, inputs):
         self.points = torch.reshape(torch.linspace(
             0, 1, self.dim), len(inputs)*[1] + [self.dim])
-        vals = torch.unsqueeze(inputs, -1)
+        vals = torch.unsqueeze(torch.tensor(inputs), -1)
         dists = (self.points - vals) ** 2
         sm = torch.exp(-dists * self.beta)
         sums = torch.sum(sm, dim=-1)
